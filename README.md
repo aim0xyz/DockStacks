@@ -9,12 +9,7 @@ Stapel für das macOS-Dock. Fasse Apps zu Stapeln zusammen: Jeder Stapel bekommt
 Voraussetzungen: macOS 26 oder neuer, Mac mit Apple Silicon.
 
 1. ZIP entpacken und `DockStacks.app` in den Ordner **Programme** ziehen.
-2. DockStacks öffnen. Die App ist nicht von Apple notarisiert, deshalb blockiert macOS beim ersten Start.
-   Geh dann zu **Systemeinstellungen → Datenschutz & Sicherheit** und klick bei DockStacks auf **Trotzdem öffnen**.
-   Alternativ im Terminal:
-   ```bash
-   xattr -dr com.apple.quarantine /Applications/DockStacks.app
-   ```
+2. DockStacks öffnen. Die App ist von Apple beglaubigt (notarisiert); macOS fragt beim ersten Start nur einmal nach, ob du die aus dem Internet geladene App öffnen willst.
 3. In den Einstellungen den ersten Stapel anlegen und Apps hineinlegen.
 
 ## Funktionen
@@ -38,3 +33,9 @@ Benötigt Xcode mit Swift 6.
 ```
 
 Die fertige App liegt danach in `build/DockStacks.app`. Mit `--install` ersetzt das Skript zusätzlich `/Applications/DockStacks.app` und startet sie. Zum Signieren nimmt es das erste „Apple Development“-Zertifikat aus dem Schlüsselbund; eine andere Identität lässt sich mit `DOCKSTACKS_SIGN_IDENTITY` setzen (`-` für Ad-hoc).
+
+`./scripts/release.sh` baut die beglaubigte `build/DockStacks.zip` für einen Release. Dafür braucht es ein „Developer ID Application“-Zertifikat und einmalig gespeicherte Zugangsdaten für Apples Notar-Dienst:
+
+```bash
+xcrun notarytool store-credentials notary --team-id <Team-ID>
+```
