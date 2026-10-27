@@ -161,7 +161,17 @@ final class StubManager {
         // bundle; drop it before signing. updateIcon puts it back afterwards.
         try? FileManager.default.removeItem(at: bundle.appendingPathComponent("Icon\r"))
         _ = bundle.path.withCString { removexattr($0, "com.apple.FinderInfo", XATTR_NOFOLLOW) }
+        removeQuarantine(from: bundle)
         sign(bundle)
+    }
+
+    /// A stack app copied out of a downloaded DockStacks.app inherits the download's quarantine flag,
+    /// and Gatekeeper refuses to open it once it is signed ad hoc. DockStacks made it, so drop the flag.
+    private func removeQuarantine(from bundle: URL) {
+        let items = FileManager.default.enumerator(atPath: bundle.path)?.compactMap { $0 as? String } ?? []
+        for path in [bundle.path] + items.map({ bundle.appendingPathComponent($0).path }) {
+            _ = path.withCString { removexattr($0, "com.apple.quarantine", XATTR_NOFOLLOW) }
+        }
     }
 
     private func sign(_ bundle: URL) {
